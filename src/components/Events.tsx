@@ -1,13 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Calendar, Clock, MapPin } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import EventModal from './EventModal';
+import { format } from 'date-fns';
+
+interface Event {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  description: string;
+  image_url: string;
+}
 
 const Events: React.FC = () => {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.2,
   });
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('date', { ascending: true })
+      .limit(3);
+
+    if (error) {
+      console.error('Error fetching events:', error);
+      return;
+    }
+
+    setEvents(data || []);
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -28,32 +64,10 @@ const Events: React.FC = () => {
     },
   };
 
-  const events = [
-    {
-      title: 'Get Connected',
-      date: 'Every weekday',
-      time: '1:00 PM',
-      location: 'The Ark',
-      description: 'A 30 minutes lunch hour fellowship.',
-      image: '/assets/images/get-connected.jpeg',
-    },
-    {
-      title: 'Join Us Live',
-      date: 'Every Service day',
-      time: '@Church time o\'clock',
-      location: 'Online',
-      description: 'Links : <a href="https://facebook.com/TheFathersChurch" target="_blank" class="text-blue-600 underline">FACEBOOK</a> | <a href="https://thefatherschurch.mixlr.com/" target="_blank" class="text-blue-600 underline">MIXLR</a>  |  <a href="https://www.youtube.com/@TheFathersChurch" target="_blank" class="text-blue-600 underline">YOUTUBE</a>',
-      image: '/assets/images/live.jpeg',
-    },
-    {
-      title: 'Virtue Conference',
-      date: 'July 5-7, 2025',
-      time: 'All Day',
-      location: 'Main Auditorium',
-      description: 'Three days of inspiration, worship, and community for Queens.',
-      image: '/assets/images/klm.jpeg',
-    },
-  ];
+  const handleLearnMore = (event: Event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+  };
 
   return (
     <section id="events" className="py-20 bg-warmGray-100">
@@ -68,7 +82,7 @@ const Events: React.FC = () => {
           <motion.div variants={itemVariants} className="text-center mb-16">
             <span className="inline-block px-3 py-1 bg-gold-100 text-gold-600 rounded-full text-sm font-medium mb-4">Get Involved</span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-navy-800 mb-6">
-              Events
+              Upcoming Events
             </h2>
             <div className="w-20 h-1 bg-gold-500 mx-auto mb-6"></div>
             <p className="text-lg text-navy-700 max-w-3xl mx-auto">
@@ -77,15 +91,15 @@ const Events: React.FC = () => {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {events.map((event, index) => (
+            {events.map((event) => (
               <motion.div
-                key={index}
+                key={event.id}
                 variants={itemVariants}
                 className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow group"
               >
                 <div className="h-48 overflow-hidden">
                   <img 
-                    src={event.image} 
+                    src={event.image_url} 
                     alt={event.title} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -94,7 +108,7 @@ const Events: React.FC = () => {
                   <h3 className="text-xl font-bold text-navy-800 mb-2">{event.title}</h3>
                   <div className="flex items-center text-navy-600 mb-2">
                     <Calendar className="h-4 w-4 mr-2 text-gold-500" />
-                    <span className="text-sm">{event.date}</span>
+                    <span className="text-sm">{format(new Date(event.date), 'MMMM d, yyyy')}</span>
                   </div>
                   <div className="flex items-center text-navy-600 mb-2">
                     <Clock className="h-4 w-4 mr-2 text-gold-500" />
@@ -104,9 +118,11 @@ const Events: React.FC = () => {
                     <MapPin className="h-4 w-4 mr-2 text-gold-500" />
                     <span className="text-sm">{event.location}</span>
                   </div>
-                  <p className="text-navy-600 text-sm mb-4" 
-                     dangerouslySetInnerHTML={{ __html: event.description }}></p>
-                  <button className="text-gold-500 hover:text-gold-600 font-medium transition-colors inline-flex items-center">
+                  <p className="text-navy-600 text-sm mb-4">{event.description}</p>
+                  <button 
+                    onClick={() => handleLearnMore(event)}
+                    className="text-gold-500 hover:text-gold-600 font-medium transition-colors inline-flex items-center"
+                  >
                     Learn More
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -127,6 +143,12 @@ const Events: React.FC = () => {
           </motion.div>
         </motion.div>
       </div>
+
+      <EventModal
+        event={selectedEvent}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </section>
   );
 };
