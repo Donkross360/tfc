@@ -123,7 +123,7 @@ const ServiceTimes: React.FC = () => {
                   </p>
                 </div>
                 <a 
-                  href="https://www.google.com/maps/place/Eden/@9.0877763,7.4420249,19.66z/data=!4m19!1m12!4m11!1m3!2m2!1d7.4917152!2d9.0572726!1m6!1m2!1s0x104e0acbc107c52d:0xd42352308cb55a5d!2s3CQR%2B5XG+Eden+Centre,+Eden+Rd,+Kado,+Ndawuse+900108,+Federal+Capital+Territory!2m2!1d7.4423757!2d9.088221!3m5!1s0x104e0acbc16cee6b:0x81bdaf91317b7100!8m2!3d9.0880435!4d7.4421382!16s%2Fg%2F11fnrf9rsw?entry=ttu&g_ep=EgoyMDI1MDQyMi4wIKXMDSoASAFQAw%3D%3D" 
+                  href="https://www.google.com/maps/place/The+Father's+Church,+Jahi,+Abuja/@9.0882223,7.441732,19z/data=!3m1!4b1!4m6!3m5!1s0x104e0acbc107c52d:0xd42352308cb55a5d!8m2!3d9.088221!4d7.4423757!16s%2Fg%2F1yg4lwml_?entry=ttu&g_ep=EgoyMDI1MDQyMy4wIKXMDSoASAFQAw%3D%3D" 
                   className="inline-block bg-gold-500 hover:bg-gold-600 text-white px-6 py-2 rounded-md transition-colors font-medium"
                 >
                   Get Directions
